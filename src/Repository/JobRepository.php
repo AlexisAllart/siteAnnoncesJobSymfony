@@ -2,12 +2,29 @@
 
 namespace App\Repository;
 
+use App\Entity\Category;
 use App\Entity\Job;
+use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
 
 class JobRepository extends EntityRepository
 {
+    /**
+     * @param Category $category
+     * @return AbstractQuery
+     */
+    public function getPaginatedActiveJobsByCategory(Category $category):AbstractQuery
+    {
+        return $this->createQueryBuilder('j')
+                    ->where('j.category= :category')
+                    ->andwhere('j.expiresAt> :date')
+                    ->setParameter('category', $category)
+                    ->setParameter('date', new \DateTime())
+                    ->getQuery();
+    }
+
+
     /**
      * @param int|null $categoryId
      *
