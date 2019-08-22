@@ -11,6 +11,16 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Job
 {
+    public const FULL_TIME_TYPE='full-time';
+    public const PART_TIME_TYPE='part-time';
+    public const FREELANCE_TYPE='freelance';
+
+    public const TYPES=[
+        self::FULL_TIME_TYPE,
+        self::PART_TIME_TYPE,
+        self::FREELANCE_TYPE,
+    ];
+
     /**
      * @var int
      *
@@ -182,19 +192,19 @@ class Job
     }
 
     /**
-     * @return string|null
+     * @return string|null|UploadedFile $logo
      */
-    public function getLogo() : ?string
+    public function getLogo()
     {
         return $this->logo;
     }
 
     /**
-     * @param string|null $logo
+     * @param string|null|UploadedFile $logo
      *
      * @return self
      */
-    public function setLogo(?string $logo) : self
+    public function setLogo( $logo) : self
     {
         $this->logo = $logo;
 
