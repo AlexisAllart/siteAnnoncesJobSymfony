@@ -1,13 +1,10 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    
-        {% include 'job/control_panel.html.twig' with {
-            'job': job,
-            'deleteForm': deleteForm
-        } only %}
- 
-
+            {% include 'job/control_panel.html.twig' with {
+                'job': job,
+                'deleteForm': deleteForm
+            } only %}
     <h1>annonces</h1>
 
     <div class="media" style="margin-top: 60px;">

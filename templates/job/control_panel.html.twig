@@ -5,14 +5,14 @@
         </div>
 
         <div class="collapse navbar-collapse">
-            {# {{ form_start(deleteForm, {'attr': {'class': 'navbar-form navbar-left'}}) }}
+            {{ form_start(deleteForm, {'attr': {'class': 'navbar-form navbar-left'}}) }}
                 {{ form_widget(deleteForm) }}
 
                 <button type="submit" class="btn btn-default" onclick="return confirm('Etes vous sur?')">
                     <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                     Delete
                 </button>
-            {{ form_end(deleteForm) }} #}
+            {{ form_end(deleteForm) }} 
 
             {% if job.activated %}
                 {% if job.expiresAt < date() %}
