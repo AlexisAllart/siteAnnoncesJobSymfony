@@ -3,11 +3,12 @@
 {% block body %}
     
         {% include 'job/control_panel.html.twig' with {
-            'job': job
+            'job': job,
+            'deleteForm': deleteForm
         } only %}
-  
+ 
 
-    <h1>Annonce</h1>
+    <h1>annonces</h1>
 
     <div class="media" style="margin-top: 60px;">
         {% if job.logo %}
@@ -37,7 +38,7 @@
             <p>{{ job.description|nl2br }}</p>
 
             <p style="margin-top: 40px;">
-                <strong>Comment postuler?</strong>
+                <strong>Comment Candidater?</strong>
             </p>
 
             <p>{{ job.howToApply }}</p>

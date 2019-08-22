@@ -17,42 +17,63 @@ use App\Service\FileUploader;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class JobController extends Controller
+class JobController extends AbstractController
 {
     /**
-     * @Route("/job/create",name="job.create",methods="GET|POST")
-     * 
+     *
+     * @Route("/", name="job.list", methods="GET")
+     *
+     * @param EntityManagerInterface $em
+     *
+     * @return Response
+     */
+    public function list(EntityManagerInterface $em) : Response
+    {
+        $categories = $em->getRepository(Category::class)->findWithActiveJobs();
+        return $this->render('job/list.html.twig', [
+            'categories' => $categories,
+        ]);
+    }
+    /**
+     *
+     * @Route("job/{id}", name="job.show", methods="GET", requirements={"id" = "\d+"})
+     *
+     * @Entity("job", expr="repository.findActiveJob(id)")
+     *
+     * @param Job $job
+     *
+     * @return Response
+     */
+    public function show(Job $job) : Response
+    {
+        return $this->render('job/show.html.twig', [
+            'job' => $job,
+        ]);
+    }
+    /**
+     *
+     * @Route("/job/create", name="job.create", methods={"GET", "POST"})
+     *
      * @param Request $request
      * @param EntityManagerInterface $em
-     * 
+     *
      * @return RedirectResponse|Response
      */
-    public function create(Request $request,EntityManagerInterface $em,FileUploader $fileUploader):Response
+    public function create(Request $request, EntityManagerInterface $em) : Response
     {
-        $job=new Job();
-        $form=$this->createForm(JobType::class,$job);
-        $form -> handleRequest($request);
-
+        $job = new Job();
+        $form = $this->createForm(JobType::class, $job);
+        $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var UploadedFile|null $logoFile */
-            $logoFile = $form->get('logo')->getData();
-
-            if ($logoFile instanceof UploadedFile) {
-                $fileName = $fileUploader->upload($logoFile);
-
-                $job->setLogo($fileName);
-            }
-
             $em->persist($job);
             $em->flush();
-
             return $this->redirectToRoute(
                 'job.preview',
                 ['token' => $job->getToken()]
             );
         }
-        return $this->render('job/create.html.twig',[
-            'form'=>$form->createView()
+        return $this->render('job/create.html.twig', [
+            'form' => $form->createView(),
         ]);
     }
     /**
@@ -80,40 +101,6 @@ class JobController extends Controller
             'form' => $form->createView(),
         ]);
     }
-
-    /**
-     *
-     * @Route("/", name="job.list", methods="GET")
-     *
-     * @param EntityManagerInterface $em
-     *
-     * @return Response
-     */
-    public function list(EntityManagerInterface $em) : Response
-    {
-        $categories = $em->getRepository(Category::class)->findWithActiveJobs();
-
-        return $this->render('job/list.html.twig', [
-            'categories' => $categories,
-        ]);
-    }
-
-    /**
-     *
-     * @Route("job/{id}", name="job.show", methods="GET", requirements={"id" = "\d+"})
-     *
-     * @Entity("job", expr="repository.findActiveJob(id)")
-     *
-     * @param Job $job
-     *
-     * @return Response
-     */
-    public function show(Job $job) : Response
-    {
-        return $this->render('job/show.html.twig', [
-            'job' => $job,
-        ]);
-    }
     /**
      *
      * @Route("job/{token}", name="job.preview", methods="GET", requirements={"token" = "\w+"})
@@ -124,9 +111,46 @@ class JobController extends Controller
      */
     public function preview(Job $job) : Response
     {
+        $deleteForm = $this->createDeleteForm($job);
+        $publishForm = $this->createPublishForm($job);
         return $this->render('job/show.html.twig', [
             'job' => $job,
-            'hasControlAccess'=>true
+            'hasControlAccess' => true,
+            'deleteForm' => $deleteForm->createView(),
         ]);
+    }
+    /**
+     *
+     * @Route("job/{token}/delete", name="job.delete", methods="DELETE", requirements={"token" = "\w+"})
+     *
+     * @param Request $request
+     * @param Job $job
+     * @param EntityManagerInterface $em
+     *
+     * @return Response
+     */
+    public function delete(Request $request, Job $job, EntityManagerInterface $em) : Response
+    {
+        $form = $this->createDeleteForm($job);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->remove($job);
+            $em->flush();
+        }
+        return $this->redirectToRoute('job.list');
+    }
+    
+    /**
+     *
+     * @param Job $job
+     *
+     * @return FormInterface
+     */
+    private function createDeleteForm(Job $job) : FormInterface
+    {
+        return $this->createFormBuilder()
+            ->setAction($this->generateUrl('job.delete', ['token' => $job->getToken()]))
+            ->setMethod('DELETE')
+            ->getForm();
     }
 }
