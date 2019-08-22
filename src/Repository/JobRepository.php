@@ -4,11 +4,6 @@ namespace App\Repository;
 
 use App\Entity\Category;
 use App\Entity\Job;
-<<<<<<< HEAD
-use Doctrine\ORM\AbstractQuery;
-=======
-use App\Entity\Category;
->>>>>>> 12d2753689782e3753e0748cf42f637e71f455fa
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\AbstractQuery;
